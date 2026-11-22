@@ -1,6 +1,7 @@
-import { drawText, drawWrapped, textWidth } from './font.js?v=11';
-import { panel, button, UI } from './ui.js?v=11';
-import { px, ellipse, PAL } from './art.js?v=11';
+import { drawText, drawWrapped, textWidth } from './font.js?v=14';
+import { translate } from './i18n.js?v=14';
+import { panel, button, UI } from './ui.js?v=14';
+import { px, ellipse, PAL } from './art.js?v=14';
 
 const PHASES = [
   { name: 'fade', dur: 0.9 },
@@ -13,6 +14,8 @@ const PHASES = [
 
 const MESSAGE_A = 'HAPPY BIRTHDAY, LAZY!';
 const BIRTHDAY_LETTER = `Dear Lazy,\n\nToday, the main character of this little adventure gets to celebrate another year of life!\n\nI hope this new chapter brings you countless happy moments, wonderful memories, exciting experiences, and people who genuinely care about you.\n\nLife isn't always like a game where every level is easy to complete. Sometimes there are difficult stages, unexpected obstacles, and moments when things don't go as planned.\n\nBut I hope you never forget how valuable you are. Take your time, enjoy the little things, and never feel like you have to rush through life.\n\nMay you always have reasons to smile, games worth playing, dreams worth chasing, and friends who make even ordinary days feel special.\n\nThank you for being the inspiration behind this little world. Every flower, every star, and every tiny adventure was placed here to make you smile.\n\nYou deserve happiness, not just today, but every day.\n\nHappy Birthday, Lazy!\n\nMay your next chapter be your favorite one yet.\n\nWith love,\nYour Little Raccoon.`;
+
+const LETTER = translate(BIRTHDAY_LETTER);
 
 export class Ending {
   constructor(w, h) {
@@ -43,7 +46,7 @@ export class Ending {
 
   update(dt, audio, effects) {
     this.t += dt;
-    if (this.phase === 'message') this.letterChars = Math.min(BIRTHDAY_LETTER.length, this.letterChars + dt * 58);
+    if (this.phase === 'message') this.letterChars = Math.min(LETTER.length, this.letterChars + dt * 58);
     const phase = PHASES[this.phaseIndex];
     if (this.t >= phase.dur && phase.dur !== Infinity) {
       this.phaseIndex++;
@@ -214,7 +217,7 @@ export class Ending {
     ctx.fillStyle = 'rgba(7,4,15,0.84)'; ctx.fillRect(0, 0, w, h);
     panel(ctx, 12, 10, w - 24, h - 20, { fill: '#352049' });
     drawText(ctx, 'HAPPY BIRTHDAY, LAZY!', w / 2, 18, { scale: 1.5, align: 'center', color: UI.gold, shadow: UI.ink });
-    const shown = BIRTHDAY_LETTER.slice(0, Math.floor(this.letterChars));
+    const shown = LETTER.slice(0, Math.floor(this.letterChars));
     const words = shown.replace(/\n/g, '  ').split(/\s+/);
     const lines = []; let line = '';
     for (const word of words) {
@@ -228,6 +231,6 @@ export class Ending {
     for (let i = this.letterScroll; i < Math.min(lines.length, this.letterScroll + visible); i++) {
       drawText(ctx, lines[i], 24, 34 + (i - this.letterScroll) * 15, { scale: 1.25, color: UI.cream, shadow: UI.ink });
     }
-    drawText(ctx, this.letterChars < BIRTHDAY_LETTER.length ? '...READING...' : 'TAP / ESC TO CLOSE', w / 2, h - 22, { align: 'center', color: UI.pink });
+    drawText(ctx, this.letterChars < LETTER.length ? '...READING...' : 'TAP / ESC TO CLOSE', w / 2, h - 22, { align: 'center', color: UI.pink });
   }
 }

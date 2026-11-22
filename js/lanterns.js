@@ -1,4 +1,4 @@
-import { px, ellipse } from './art.js?v=11';
+import { px, ellipse } from './art.js?v=14';
 
 // Three lanterns that the night wind scattered around Lantern Street.
 export const LANTERN_DEFS = [

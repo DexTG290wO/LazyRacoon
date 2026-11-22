@@ -1,5 +1,5 @@
-import { Game } from './game.js?v=11';
-import { audio } from './audio.js?v=11';
+import { Game } from './game.js?v=14';
+import { audio } from './audio.js?v=14';
 
 const canvas = document.getElementById('game');
 const loading = document.getElementById('loading');

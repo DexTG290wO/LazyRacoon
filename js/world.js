@@ -1,5 +1,5 @@
-import { drawGround, hash2, PAL, px, ellipse } from './art.js?v=11';
-import { drawText } from './font.js?v=11';
+import { drawGround, hash2, PAL, px, ellipse } from './art.js?v=14';
+import { drawText } from './font.js?v=14';
 
 export const TILE = 16;
 export const WORLD_W = 60;

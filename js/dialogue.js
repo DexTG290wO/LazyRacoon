@@ -1,5 +1,5 @@
-import { panel, label, UI } from './ui.js?v=11';
-import { drawText, drawWrapped } from './font.js?v=11';
+import { panel, label, UI } from './ui.js?v=14';
+import { drawText, drawWrapped } from './font.js?v=14';
 
 const CPS = 52; // characters per second
 

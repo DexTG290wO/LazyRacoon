@@ -1,4 +1,5 @@
 // Tiny 5x7 bitmap font. No external assets, fully offline, pixel perfect.
+import { translate } from './i18n.js?v=14';
 
 const G = (rows) => rows.map((r) => r.split('').map((c) => (c === '#' || c === '1' ? 1 : 0)));
 
@@ -152,15 +153,65 @@ for (const key in SMALL_ROWS) SMALL[key] = G(SMALL_ROWS[key]);
 export const TINY_W = 4;
 export const TINY_H = 5;
 
+// Dấu tiếng Việt được ghép từ chữ cái Latinh + nét dấu trên một ô glyph.
+const MARKS = {
+  acute: [[3, 0], [4, 0]],
+  grave: [[0, 0], [1, 0]],
+  hook: [[2, 0], [3, 0]],
+  tilde: [[1, 0], [3, 0]],
+  breve: [[0, 0], [2, 0], [4, 0]],
+  circumflex: [[1, 0], [2, 0], [3, 0]],
+  horn: [[0, 0], [3, 0], [4, 0]],
+  dot: [[2, 6]],
+};
+const MARK_CODE = {
+  0x0301: 'acute', 0x0300: 'grave', 0x0309: 'hook', 0x0303: 'tilde',
+  0x0323: 'dot', 0x0306: 'breve', 0x0302: 'circumflex', 0x031b: 'horn',
+};
+
+function vietParts(ch) {
+  if (ch === 'đ' || ch === 'Đ') {
+    return { base: ch === 'đ' ? 'd' : 'D', bar: true, upper: ch === 'Đ' };
+  }
+  const nfd = ch.normalize('NFD');
+  if (nfd.length === 1) return null;
+  const base = nfd[0];
+  if (!/^[A-Za-z]$/.test(base)) return null;
+  const marks = [];
+  for (const m of nfd.slice(1)) {
+    const name = MARK_CODE[m.codePointAt(0)];
+    if (name) marks.push(name);
+  }
+  return marks.length ? { base, marks, upper: base === base.toUpperCase() } : null;
+}
+
+function drawMarks(ctx, vp, gx, y, scale, color, widthCells) {
+  if (vp.bar) {
+    ctx.fillStyle = color;
+    const r0 = vp.upper ? 1 : 2;
+    for (let r = r0; r < 6; r++) ctx.fillRect(gx + 2 * scale, y + r * scale, scale, scale);
+    return;
+  }
+  ctx.fillStyle = color;
+  for (const name of vp.marks) {
+    const pts = MARKS[name];
+    if (!pts) continue;
+    for (const [cx, cy] of pts) {
+      if (cx < widthCells) ctx.fillRect(gx + cx * scale, y + cy * scale, scale, scale);
+    }
+  }
+}
+
 export function tinyWidth(text, scale = 1) {
-  if (!text || !text.length) return 0;
-  return (text.length * 5 - 1) * scale;
+  const s = translate(text);
+  if (!s || !s.length) return 0;
+  return (s.length * 5 - 1) * scale;
 }
 
 /** Compact HUD text. Options: scale, color, align, shadow. */
 export function drawTiny(ctx, text, x, y, options = {}) {
   const scale = options.scale || 1;
-  const str = String(text);
+  const str = translate(text);
   const color = options.color || '#ffffff';
   let px0 = x;
   if (options.align === 'center') px0 = Math.round(x - tinyWidth(str, scale) / 2);
@@ -168,14 +219,18 @@ export function drawTiny(ctx, text, x, y, options = {}) {
   const layer = (dx, dy, fill) => {
     ctx.fillStyle = fill;
     for (let i = 0; i < str.length; i++) {
-      const glyph = SMALL[str[i].toUpperCase()] || SMALL['?'];
+      const vp = vietParts(str[i]);
+      const ch = vp ? vp.base : str[i];
+      const glyph = SMALL[ch.toUpperCase()] || SMALL['?'];
       const gx = px0 + i * 5 * scale + dx;
+      const shift = vp && vp.upper && !vp.bar ? scale : 0;
       for (let r = 0; r < TINY_H; r++) {
         const bits = glyph[r];
         for (let c = 0; c < TINY_W; c++) {
-          if (bits[c]) ctx.fillRect(gx + c * scale, y + r * scale + dy, scale, scale);
+          if (bits[c]) ctx.fillRect(gx + c * scale, y + r * scale + shift + dy, scale, scale);
         }
       }
+      if (vp) drawMarks(ctx, vp, gx, y + dy, scale, fill, TINY_W);
     }
   };
   ctx.save();
@@ -189,8 +244,9 @@ export const CHAR_W = 5;
 export const CHAR_H = 7;
 
 export function textWidth(text, scale = 1) {
-  if (!text || text.length === 0) return 0;
-  return (text.length * (CHAR_W + 1) - 1) * scale;
+  const s = translate(text);
+  if (!s || s.length === 0) return 0;
+  return (s.length * (CHAR_W + 1) - 1) * scale;
 }
 
 /**
@@ -201,7 +257,7 @@ export function drawText(ctx, text, x, y, options = {}) {
   const scale = options.scale || 1;
   const color = options.color || '#ffffff';
   const align = options.align || 'left';
-  const str = String(text);
+  const str = translate(text);
   let px = x;
   if (align === 'center') px = Math.round(x - textWidth(str, scale) / 2);
   else if (align === 'right') px = Math.round(x - textWidth(str, scale));
@@ -211,15 +267,23 @@ export function drawText(ctx, text, x, y, options = {}) {
   const drawLayer = (dx, dy, fill) => {
     ctx.fillStyle = fill;
     for (let i = 0; i < str.length; i++) {
-      const ch = str[i];
+      const vp = vietParts(str[i]);
+      const ch = vp ? vp.base : str[i];
       const glyph = CACHE[ch] || CACHE['?'];
       const gx = px + i * (CHAR_W + 1) * scale + dx;
+      // Chữ hoa có dấu trên: lùi gốc xuống 1px; chữ thường có dấu dưới: nhích lên 1px.
+      let shift = 0;
+      if (vp && !vp.bar) {
+        if (vp.upper && vp.marks.some((m) => m !== 'dot')) shift = scale;
+        else if (!vp.upper && vp.marks.includes('dot')) shift = -scale;
+      }
       for (let row = 0; row < CHAR_H; row++) {
         const bits = glyph[row];
         for (let col = 0; col < CHAR_W; col++) {
-          if (bits[col]) ctx.fillRect(gx + col * scale, y + row * scale + dy, scale, scale);
+          if (bits[col]) ctx.fillRect(gx + col * scale, y + row * scale + shift + dy, scale, scale);
         }
       }
+      if (vp) drawMarks(ctx, vp, gx, y + dy, scale, fill, CHAR_W);
     }
   };
   if (options.shadow) drawLayer(scale, scale, options.shadow);
@@ -230,7 +294,7 @@ export function drawText(ctx, text, x, y, options = {}) {
 export function drawWrapped(ctx, text, x, y, maxWidth, options = {}) {
   const scale = options.scale || 1;
   const lineHeight = options.lineHeight || CHAR_H * scale + scale * 2;
-  const words = String(text).split(' ');
+  const words = translate(text).split(' ');
   let line = '';
   let py = y;
   for (let i = 0; i < words.length; i++) {

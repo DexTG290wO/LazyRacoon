@@ -1,5 +1,5 @@
-import { START } from './world.js?v=11';
-import { audio } from './audio.js?v=11';
+import { START } from './world.js?v=14';
+import { audio } from './audio.js?v=14';
 
 const SPEED = 82;
 

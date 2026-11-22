@@ -1,4 +1,4 @@
-import { px, ellipse, PAL } from './art.js?v=11';
+import { px, ellipse, PAL } from './art.js?v=14';
 
 // Tile coordinates for each of the five gifts hidden around the forest.
 export const ITEM_DEFS = [

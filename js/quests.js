@@ -1,6 +1,7 @@
-import { panel, UI } from './ui.js?v=11';
-import { drawTiny } from './font.js?v=11';
-import { ITEM_DEFS } from './collectibles.js?v=11';
+import { panel, UI } from './ui.js?v=14';
+import { drawTiny } from './font.js?v=14';
+import { translate } from './i18n.js?v=14';
+import { ITEM_DEFS } from './collectibles.js?v=14';
 
 export class Quest {
   constructor(collectibles) {
@@ -15,7 +16,7 @@ export class Quest {
     const dx = near.item.x - player.x;
     const dy = near.item.y - player.y;
     const arrow = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? '>' : '<') : (dy > 0 ? 'v' : '^');
-    return { text: `${near.item.name.toUpperCase()} ${arrow}`, dir: arrow };
+    return { text: `${translate(near.item.name).toUpperCase()} ${arrow}`, dir: arrow };
   }
 
   renderHUD(ctx, player, touchMode = false) {

@@ -1,15 +1,15 @@
-import { buildObjects, buildRaccoon, buildCollectibles, px, ellipse, makeCanvas } from './art.js?v=11';
-import { World, DOOR_TILE, STREET, STALLS } from './world.js?v=11';
-import { LanternQuest } from './lanterns.js?v=11';
-import { Player } from './player.js?v=11';
-import { Collectibles } from './collectibles.js?v=11';
-import { Quest } from './quests.js?v=11';
-import { Dialogue } from './dialogue.js?v=11';
-import { Effects } from './effects.js?v=11';
-import { Ending } from './ending.js?v=11';
-import { audio } from './audio.js?v=11';
-import { drawText, drawWrapped, drawTiny, tinyWidth } from './font.js?v=11';
-import { panel, button, label, textCenter, UI } from './ui.js?v=11';
+import { buildObjects, buildRaccoon, buildCollectibles, px, ellipse, makeCanvas } from './art.js?v=14';
+import { World, DOOR_TILE, STREET, STALLS } from './world.js?v=14';
+import { LanternQuest } from './lanterns.js?v=14';
+import { Player } from './player.js?v=14';
+import { Collectibles } from './collectibles.js?v=14';
+import { Quest } from './quests.js?v=14';
+import { Dialogue } from './dialogue.js?v=14';
+import { Effects } from './effects.js?v=14';
+import { Ending } from './ending.js?v=14';
+import { audio } from './audio.js?v=14';
+import { drawText, drawWrapped, drawTiny, tinyWidth } from './font.js?v=14';
+import { panel, button, label, textCenter, UI } from './ui.js?v=14';
 
 const SAVE_KEY = 'lazy_raccoon_save_v1';
 const ACCESSORIES = ['birthday', 'mushroom', 'bunny', 'scarf', 'backpack', 'golden', 'flower', 'lantern'];
